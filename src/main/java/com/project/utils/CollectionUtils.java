@@ -32,16 +32,24 @@ public class CollectionUtils {
         return !collection.isEmpty();
     }
 
+    public <T, R> R ifTrue(T t, Predicate<T> predicate, Function<T, R> function){
+        return predicate.test(t) ? function.apply(t) : null;
+    }
+
     public <T> Predicate<Collection<T>> isNotEmpty(){
         return (collect) -> !collect.isEmpty();
     }
 
-    public <T> T getFirst(List<T> collection) {
-       return isNotEmpty(collection) && collection.size() >= 1 ? collection.get(0) : null;
+    public <T> T getFirst(Collection<T> collection) {
+       return sizeNotLess(collection, 1) ? collection.iterator().next() : null;
     }
 
     public <T> boolean hasSize(Collection<T> collection, int size){
         return isNotEmpty(collection) && collection.size() == size;
+    }
+
+    public<T> boolean sizeNotLess(Collection<T> collection, int size){
+        return collection.size() >= size;
     }
 
     public <T> Collector<T, ?, T> toSingleton() {

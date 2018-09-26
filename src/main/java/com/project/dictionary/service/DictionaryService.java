@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -23,15 +24,14 @@ public class DictionaryService {
     public DictionaryDAO dictionaryDAO;
 
     public void addPhrase(Phrase phrase){
-        if (phrase != null) {
-            dictionaryDAO.addPhrase(phrase);
-        }
+        Optional.of(phrase)
+                .ifPresent(dictionaryDAO::addPhrase);
     }
 
     public void addPhrases(Collection<Phrase> phrases){
-        if (CollectionUtils.isNotEmpty(phrases)) {
-            dictionaryDAO.addPhrases(phrases);
-        }
+        Optional.of(phrases)
+                .map(CollectionUtils::isNotEmpty)
+                .ifPresent((Void) -> dictionaryDAO.addPhrases(phrases));
     }
 
     //only for admin
@@ -69,15 +69,10 @@ public class DictionaryService {
 
     public Phrase getPhraseById(String id){
         //TODO Change to invoke appropriate dao method
-        Function<List<Phrase>, List<Phrase>> hasOnePhrase = (list) -> {
-            Assertion.hasSize(list, 1);
-            return list;
-        };
-
         return Optional.of(id)
                 .map(StringUtils::isNotBlank)
                 .map(getPhrases(p -> Objects.equals(p.getId(), id)))
-                .map(hasOnePhrase)
+                .map((list) -> Assertion.hasSize(list, 1))
                 .map(CollectionUtils::getFirst).get();
     }
 

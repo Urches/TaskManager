@@ -35,7 +35,7 @@ public class DictionaryServiceTest {
 
         service.addPhrase(phrase);
         assertEquals(sizeBefore + 1, service.getPhrases().size());
-        assertEquals(phrase, service.getPhrasesById("5"));
+        assertEquals(phrase, service.getPhraseById("5"));
     }
 
     public void addPhraseNull() {
@@ -52,7 +52,7 @@ public class DictionaryServiceTest {
         service.addPhrase(new Phrase(id, Arrays.asList("eval"), Arrays.asList("зло"), LocalDateTime.now()));
 
         assertTrue(service.removePhraseById(id));
-        assertNull(service.getPhrasesById(id));
+        assertNull(service.getPhraseById(id));
     }
 
     @Test

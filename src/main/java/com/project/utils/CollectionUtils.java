@@ -36,8 +36,12 @@ public class CollectionUtils {
         return (collect) -> !collect.isEmpty();
     }
 
-    public <T> Optional<T> getFirst(List<T> collection) {
-       return Optional.ofNullable(isNotEmpty(collection) && collection.size() >= 1 ? collection.get(0) : null);
+    public <T> T getFirst(List<T> collection) {
+       return isNotEmpty(collection) && collection.size() >= 1 ? collection.get(0) : null;
+    }
+
+    public <T> boolean hasSize(Collection<T> collection, int size){
+        return isNotEmpty(collection) && collection.size() == size;
     }
 
     public <T> Collector<T, ?, T> toSingleton() {

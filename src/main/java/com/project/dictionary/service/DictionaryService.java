@@ -5,13 +5,14 @@ import com.project.dictionary.model.Phrase;
 import com.project.dictionary.service.search.DictionarySearchContext;
 import com.project.utils.Assertion;
 import com.project.utils.CollectionUtils;
+import com.project.utils.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -51,30 +52,42 @@ public class DictionaryService {
 
     public List<Phrase> getPhrasesByTranslate(String translate){
         //TODO Change to invoke appropriate dao method
-        return Optional.of(translate).map( (v) ->
-                dictionaryDAO.getAllPhrases().stream()
-                        .filter(phrase -> phrase.getTranslation().contains(translate))
-                        .collect(toList()))
+        return Optional.of(translate)
+                .map(StringUtils::isNotBlank)
+                .map(getPhrases(phrase -> phrase.getTranslation().contains(translate)))
                 .orElse(Collections.emptyList());
     }
 
     public List<Phrase> getPhrasesByDefinition(String definition){
-        return null;
+        return Optional.of(definition)
+                .map(StringUtils::isNotBlank)
+                .map(getPhrases(phrase -> phrase.getDefinition().contains(definition)))
+                .orElse(Collections.emptyList());
     }
 
 
 
-    public Phrase getPhrasesById(String id){
+    public Phrase getPhraseById(String id){
         //TODO Change to invoke appropriate dao method
-        List<Phrase> phrases = dictionaryDAO.getAllPhrases().stream()
-                .filter(p -> Objects.equals(p.getId(), id))
-                .collect(Collectors.toList());
+        Function<List<Phrase>, List<Phrase>> hasOnePhrase = (list) -> {
+            Assertion.hasSize(list, 1);
+            return list;
+        };
 
-        Assertion.sizeNotMore(phrases, 1);
-        return CollectionUtils.getFirst(phrases).get();
+        return Optional.of(id)
+                .map(StringUtils::isNotBlank)
+                .map(getPhrases(p -> Objects.equals(p.getId(), id)))
+                .map(hasOnePhrase)
+                .map(CollectionUtils::getFirst).get();
     }
 
     public List<Phrase> getPhrases() {
         return dictionaryDAO.getAllPhrases();
+    }
+
+    private  Function<Object, List<Phrase>> getPhrases(Predicate<Phrase> predicate){
+        return (Object) -> getPhrases().stream()
+                .filter(predicate)
+                .collect(Collectors.toList());
     }
 }

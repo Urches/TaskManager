@@ -3,6 +3,8 @@ package com.project.dictionary.service;
 import com.project.dictionary.dao.DictionaryDAO;
 import com.project.dictionary.model.Phrase;
 import com.project.dictionary.service.search.DictionarySearchContext;
+import com.project.function.CollectionMapperUtils;
+import com.project.function.StringMapperUtils;
 import com.project.utils.Assertion;
 import com.project.utils.CollectionUtils;
 import com.project.utils.StringUtils;
@@ -30,8 +32,8 @@ public class DictionaryService {
 
     public void addPhrases(Collection<Phrase> phrases){
         Optional.of(phrases)
-                .map(CollectionUtils::isNotEmpty)
-                .ifPresent((Void) -> dictionaryDAO.addPhrases(phrases));
+                .map(CollectionMapperUtils::isNotEmpty)
+                .ifPresent(dictionaryDAO::addPhrases);
     }
 
     //only for admin
@@ -53,14 +55,14 @@ public class DictionaryService {
     public List<Phrase> getPhrasesByTranslate(String translate){
         //TODO Change to invoke appropriate dao method
         return Optional.of(translate)
-                .map(StringUtils::isNotBlank)
+                .map(StringMapperUtils::isNotBlank)
                 .map(getPhrases(phrase -> phrase.getTranslation().contains(translate)))
                 .orElse(Collections.emptyList());
     }
 
     public List<Phrase> getPhrasesByDefinition(String definition){
         return Optional.of(definition)
-                .map(StringUtils::isNotBlank)
+                .map(StringMapperUtils::isNotBlank)
                 .map(getPhrases(phrase -> phrase.getDefinition().contains(definition)))
                 .orElse(Collections.emptyList());
     }
@@ -70,7 +72,7 @@ public class DictionaryService {
     public Phrase getPhraseById(String id){
         //TODO Change to invoke appropriate dao method
         return Optional.of(id)
-                .map(StringUtils::isNotBlank)
+                .map(StringMapperUtils::isNotBlank)
                 .map(getPhrases(p -> Objects.equals(p.getId(), id)))
                 .map((list) -> Assertion.hasSize(list, 1))
                 .map(CollectionUtils::getFirst).get();
